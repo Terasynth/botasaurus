@@ -42,3 +42,5 @@ _todo_update/
 botasaurus/botasaurus_storage.json
 bota/src/bota/package_storage.json
 FUTURE.md
+# Local Environment Secrets
+.env.local
