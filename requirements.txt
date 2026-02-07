@@ -1,0 +1,4 @@
+flask
+gunicorn
+botasaurus-driver
+# Add other botasaurus deps if not included in the base image
