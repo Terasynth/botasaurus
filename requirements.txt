@@ -1,4 +1,6 @@
 flask
 gunicorn
 botasaurus-driver
+botasaurus
+botasaurus-requests
 # Add other botasaurus deps if not included in the base image
