@@ -1,10 +1,11 @@
 # Security
 
 ## API Security
-- Ensure `server.py` handles exceptions to prevent leaking stack traces.
-- Use environment variables for sensitive configuration (though currently none are used).
-- Validate input in scraper functions.
+- **API Key**: It is highly recommended to use an `API_KEY` environment variable to secure the scrapers. The `server.py` should be updated to check for this key in the request headers (e.g., `X-API-KEY`).
+- Error Handling: Ensure `server.py` handles exceptions to prevent leaking stack traces.
+- Input Validation: Validate all incoming JSON payloads in scraper functions.
 
-## Deployment
-- Run in a containerized environment (Docker).
-- Use non-root user in Docker if possible (currently running as root by default in python images, consider updating Dockerfile).
+## Cloud Run Deployment
+- **PORT**: Automatically provided by Cloud Run.
+- **Secrets Management**: Sensitive keys (like future API keys for Grants.gov or a shared `API_KEY`) should be stored in Secret Manager and injected as environment variables.
+- Service Account: Use a dedicated service account with minimal permissions.

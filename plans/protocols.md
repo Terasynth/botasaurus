@@ -7,5 +7,7 @@
 
 ## API Protocol
 - **Endpoint**: `/scrape/<target>`
-- **Method**: POST (preferred) or GET
+- **Method**: POST
 - **Payload**: JSON body passed to scraper as `data`.
+- **Authentication**: Include the `X-API-KEY` header with your valid API key.
+    - Example: `curl -H "X-API-KEY: your_api_key_here" http://<SERVICE-URL>/scrape/nspires`

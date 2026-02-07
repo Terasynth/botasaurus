@@ -19,6 +19,17 @@ def health_check():
 
 @app.route('/scrape/<target>', methods=['GET', 'POST'])
 def run_scraper(target):
+    # --- API Key Verification ---
+    # Retrieve API_KEY from environment variables
+    expected_api_key = os.environ.get("API_KEY")
+    
+    # If API_KEY is set in environment, verify the request header
+    if expected_api_key:
+        provided_api_key = request.headers.get("X-API-KEY")
+        if provided_api_key != expected_api_key:
+            return jsonify({"error": "Unauthorized: Invalid or missing API Key"}), 401
+    # ----------------------------
+
     if target not in SCRAPERS:
         return jsonify({"error": f"Scraper '{target}' not found"}), 404
         
