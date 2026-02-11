@@ -40,6 +40,7 @@ def _scrape_request_only(request: Request, url):
     # Use stealth mode if available in the installed version, 
     # otherwise defaults are handled by Botasaurus
     tiny_profile=True,
+    profile="universal",
 )
 def _scrape_browser_only(driver: Driver, data):
     """Slow path using headless Chrome."""
