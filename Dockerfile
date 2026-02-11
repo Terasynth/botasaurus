@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+ENV PYTHONUNBUFFERED=1
+
 # Install system deps for Chrome (needed for Botasaurus @browser mode)
 # and minimal build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \

@@ -46,13 +46,18 @@ def run_scraper(target):
         # Get optional data from request body to pass to scraper
         input_data = request.json if request.is_json else {}
         
+        print(f"[{target}] JOB_START for {input_data.get('url', 'no-url')}")
+        
         # Run the specific scraper function
         # Note: Scraper functions should accept 'data' as a keyword argument
         result = SCRAPERS[target](data=input_data)
         
+        print(f"[{target}] JOB_FINISHED")
+        
         # Ensure result is JSON serializable
         return jsonify(result)
     except Exception as e:
+        print(f"[{target}] JOB_ERROR: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
