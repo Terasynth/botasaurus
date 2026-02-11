@@ -1,6 +1,7 @@
 FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1
+ENV BOTASAURUS_DRIVER_ONLY=true
 
 # Install system deps for Chrome (needed for Botasaurus @browser mode)
 # and minimal build tools

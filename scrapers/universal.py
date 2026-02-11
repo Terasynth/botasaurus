@@ -8,15 +8,38 @@ def log_event(event, details=""):
 
 @request
 def _scrape_request_only(request: Request, url):
-    """Fast path using HTTP requests only."""
+    """Fast path using HTTP requests only with stealth headers."""
     log_event("REQUEST_START", url)
-    response = request.get(url, timeout=10)
-    log_event("REQUEST_COMPLETE", f"Status: {response.status_code}")
-    return response.text
+    
+    # Stealth headers to mimic a real browser for the fast path
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "DNT": "1",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+    }
+    
+    try:
+        response = request.get(url, headers=headers, timeout=15)
+        log_event("REQUEST_COMPLETE", f"Status: {response.status_code}")
+        return response.text
+    except Exception as e:
+        log_event("REQUEST_FAILED", str(e))
+        return ""
 
 @browser(
     headless=True,
     block_images=True,
+    # Use stealth mode if available in the installed version, 
+    # otherwise defaults are handled by Botasaurus
+    tiny_profile=True,
 )
 def _scrape_browser_only(driver: Driver, data):
     """Slow path using headless Chrome."""
@@ -25,7 +48,8 @@ def _scrape_browser_only(driver: Driver, data):
     
     try:
         # Navigate to the URL
-        driver.get(url, wait_cb=lambda d: d.wait_for_element('body', timeout=15))
+        # We increase timeout for heavy sites like Amazon
+        driver.get(url, wait_cb=lambda d: d.wait_for_element('body', timeout=30))
         log_event("BROWSER_PAGE_LOADED")
 
         # Get the fully-rendered page source and title
@@ -43,12 +67,16 @@ def _scrape_browser_only(driver: Driver, data):
 def scrape_universal(data):
     """
     Hybrid Universal content extractor.
-    1. Tries fast HTTP request first.
+    1. Tries fast HTTP request first (with stealth headers).
     2. If content is missing or looks like a JS-app, falls back to Browser.
     """
     url = data.get("url")
     if not url:
         return {"error": "Missing required field: 'url'", "status": 400}
+
+    # Normalize URL
+    if not url.startswith(('http://', 'https://')):
+        url = 'https://' + url
 
     start_time = time.time()
     log_event("JOB_START", url)
@@ -56,11 +84,12 @@ def scrape_universal(data):
     try:
         # STEP 1: FAST PATH (HTTP Request)
         html = _scrape_request_only(url)
-        content = trafilatura.extract(html)
+        content = trafilatura.extract(html) if html else None
         
-        # If we got meaningful content, return immediately
-        # We check for common "JS required" markers or empty content
-        if content and len(content) > 200: # Threshold for "meaningful" content
+        # Check for Amazon specific block or empty content
+        is_blocked = "To discuss automated access to Amazon data please contact" in (html or "")
+        
+        if content and len(content) > 300 and not is_blocked:
             log_event("FAST_PATH_SUCCESS", f"Extracted {len(content)} chars")
             return _format_response(url, html, content, start_time)
         
