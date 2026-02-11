@@ -2,7 +2,7 @@
 
 ## Core Components
 1.  **Flask Server (`server.py`)**: Acts as the API Gateway, routing requests to specific scrapers.
-2.  **Scrapers (`scrapers/`)**: Individual modules containing scraping logic (e.g., `nspires.py`).
+2.  **Scrapers (`scrapers/`)**: Individual modules containing scraping logic (e.g., `nspires.py`, `universal.py`).
 3.  **Docker Container**: Encapsulates the application and dependencies for deployment on Cloud Run.
 
 ## Data Flow

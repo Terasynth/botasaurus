@@ -2,6 +2,7 @@ import os
 from flask import Flask, jsonify, request
 # Import your scrapers here
 from scrapers.nspires import scrape_nspires
+from scrapers.universal import scrape_universal
 
 app = Flask(__name__)
 
@@ -9,6 +10,7 @@ app = Flask(__name__)
 # Add new scrapers here as you build them
 SCRAPERS = {
     "nspires": scrape_nspires,
+    "universal": scrape_universal,
     # "grants_gov": scrape_grants_gov, 
     # "sam_gov": scrape_sam_gov,
 }
@@ -20,14 +22,21 @@ def health_check():
 @app.route('/scrape/<target>', methods=['GET', 'POST'])
 def run_scraper(target):
     # --- API Key Verification ---
-    # Retrieve API_KEY from environment variables
-    expected_api_key = os.environ.get("API_KEY")
+    # Define mapping of targets to their respective environment variable keys
+    KEY_MAPPING = {
+        "nspires": "NSPIRES_API_KEY",
+        "universal": "UNIVERSAL_API_KEY"
+    }
     
-    # If API_KEY is set in environment, verify the request header
+    # Get the environment variable name for the current target
+    env_var_name = KEY_MAPPING.get(target, "API_KEY")
+    expected_api_key = os.environ.get(env_var_name)
+    
+    # If a key is set in environment, verify the request header
     if expected_api_key:
         provided_api_key = request.headers.get("X-API-KEY")
         if provided_api_key != expected_api_key:
-            return jsonify({"error": "Unauthorized: Invalid or missing API Key"}), 401
+            return jsonify({"error": f"Unauthorized: Invalid or missing API Key for {target}"}), 401
     # ----------------------------
 
     if target not in SCRAPERS:

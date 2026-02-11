@@ -3,4 +3,5 @@ gunicorn
 botasaurus-driver
 botasaurus
 botasaurus-requests
+trafilatura
 # Add other botasaurus deps if not included in the base image

@@ -11,3 +11,27 @@
 - **Payload**: JSON body passed to scraper as `data`.
 - **Authentication**: Include the `X-API-KEY` header with your valid API key.
     - Example: `curl -H "X-API-KEY: your_api_key_here" http://<SERVICE-URL>/scrape/nspires`
+
+## Universal Scraper Protocol
+- **Endpoint**: `/scrape/universal`
+- **Method**: POST
+- **Payload**:
+    ```json
+    {
+        "url": "https://example.com/article",
+        "render_js": false // Optional, defaults to false (Note: True requires browser support not currently in Dockerfile)
+    }
+    ```
+- **Response**:
+    ```json
+    {
+        "status": 200,
+        "data": {
+            "title": "Page Title",
+            "content": "<div>Extracted HTML content...</div>",
+            "text": "Extracted plain text content...",
+            "excerpt": "Short summary...",
+            "url": "https://example.com/article"
+        }
+    }
+    ```
