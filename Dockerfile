@@ -2,8 +2,6 @@ FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1
 ENV BOTASAURUS_DRIVER_ONLY=true
-ENV CHROME_BIN=/usr/bin/google-chrome-stable
-ENV CHROME_PATH=/usr/bin/google-chrome-stable
 
 # Install system deps for Chrome (needed for Botasaurus @browser mode)
 # and minimal build tools

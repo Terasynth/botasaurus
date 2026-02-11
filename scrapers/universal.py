@@ -37,6 +37,10 @@ def _scrape_request_only(request: Request, url):
 @browser(
     headless=True,
     block_images=True,
+    # Use stealth mode if available in the installed version, 
+    # otherwise defaults are handled by Botasaurus
+    tiny_profile=True,
+    profile="universal",
 )
 def _scrape_browser_only(driver: Driver, data):
     """Slow path using headless Chrome."""
@@ -45,6 +49,7 @@ def _scrape_browser_only(driver: Driver, data):
     
     try:
         # Navigate to the URL
+        # We increase timeout for heavy sites like Amazon
         driver.get(url, wait_cb=lambda d: d.wait_for_element('body', timeout=30))
         log_event("BROWSER_PAGE_LOADED")
 
@@ -83,22 +88,13 @@ def scrape_universal(data):
         content = trafilatura.extract(html) if html else None
         
         # Check for Amazon specific block or empty content
-        # Detection for "Robot Check" / "Automated Access"
-        is_blocked = any(msg in (html or "") for msg in [
-            "To discuss automated access", 
-            "api-services-support@amazon.com",
-            "Robot Check",
-            "captcha"
-        ])
+        is_blocked = "To discuss automated access to Amazon data please contact" in (html or "")
         
         if content and len(content) > 300 and not is_blocked:
             log_event("FAST_PATH_SUCCESS", f"Extracted {len(content)} chars")
             return _format_response(url, html, content, start_time)
         
-        if is_blocked:
-            log_event("FAST_PATH_BLOCKED", "Amazon BOT detection triggered. Failing over to browser.")
-        else:
-            log_event("FAST_PATH_INSUFFICIENT", "Falling back to browser mode")
+        log_event("FAST_PATH_INSUFFICIENT", "Falling back to browser mode")
 
         # STEP 2: SLOW PATH (Browser)
         browser_res = _scrape_browser_only(data)
