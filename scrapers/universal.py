@@ -17,13 +17,6 @@ def _scrape_request_only(request: Request, url):
 @browser(
     headless=True,
     block_images=True,
-    # Add common flags to speed up startup
-    arguments=[
-        "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--disable-extensions",
-    ]
 )
 def _scrape_browser_only(driver: Driver, data):
     """Slow path using headless Chrome."""
