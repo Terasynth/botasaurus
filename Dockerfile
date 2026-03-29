@@ -19,6 +19,11 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearm
     && apt-get update && apt-get install -y --no-install-recommends google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Playwright dependencies and Chromium
+RUN pip install --no-cache-dir playwright && \
+    playwright install-deps chromium && \
+    playwright install chromium
+
 WORKDIR /app
 
 COPY requirements.txt .
@@ -29,5 +34,5 @@ COPY . .
 ENV PORT=8080
 EXPOSE 8080
 
-# Run with Gunicorn
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 server:app
+# Run with Uvicorn for FastAPI async performance
+CMD uvicorn server:app --host 0.0.0.0 --port $PORT

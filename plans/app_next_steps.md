@@ -1,17 +1,17 @@
 # App Next Steps
 
-1.  **Implement Universal Scraper**:
-    -   Add `trafilatura` to `requirements.txt`.
-    -   Create `scrapers/universal.py` with content extraction logic.
-    -   Register scraper in `server.py`.
-
-2.  **Verify Implementation**:
-    -   Build Docker image: `docker build -t botasaurus-scraper .`
-    -   Run container: `docker run -e API_KEY=test-key -p 8080:8080 botasaurus-scraper`
+1.  **Verify Reconnaissance Endpoint**:
+    -   Ensure standard Python environment is set up with `pip install -r requirements.txt`.
+    -   Install Playwright browsers with `playwright install chromium`.
+    -   Run server using `uvicorn server:app --reload` or `python server.py`.
     -   Test CURL:
         ```bash
-        curl -X POST -H "X-API-KEY: test-key" -H "Content-Type: application/json" -d '{"url":"https://example.com"}' http://localhost:8080/scrape/universal
+        curl -X POST -H "Content-Type: application/json" -H "RECON_API_KEY: your-key" -d '{"url":"https://example.com"}' http://localhost:8080/api/recon
         ```
 
-3.  **Deploy**:
+2.  **Deploy FastAPI & Playwright Environment**:
+    -   Update the existing `Dockerfile` to include Playwright system dependencies (`playwright install-deps`).
     -   Push to registry and update Cloud Run service.
+
+3.  **Expand Vulnerability Regex Hook List**:
+    - Add logic to intercept and test common injection points automatically instead of just DOM parsing.
